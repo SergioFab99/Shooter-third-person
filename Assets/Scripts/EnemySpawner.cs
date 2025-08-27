@@ -100,4 +100,22 @@ public class EnemySpawner : MonoBehaviour
             return true;
         });
     }
+
+    public void RemoveEnemyPosition(Vector3 pos)
+    {
+        if (posicionesEnemigosActivos.Count == 0) return;
+        int indexToRemove = -1;
+        float bestDist = float.MaxValue;
+        for (int i = 0; i < posicionesEnemigosActivos.Count; i++)
+        {
+            float d = Vector3.Distance(pos, posicionesEnemigosActivos[i]);
+            if (d < bestDist)
+            {
+                bestDist = d;
+                indexToRemove = i;
+            }
+        }
+        if (indexToRemove != -1 && bestDist <= 2f)
+            posicionesEnemigosActivos.RemoveAt(indexToRemove);
+    }
 }

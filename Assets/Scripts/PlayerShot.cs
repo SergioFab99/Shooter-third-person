@@ -38,15 +38,22 @@ public class PlayerShoot : MonoBehaviour
     void Disparar()
     {
         Vector3 direccionDisparo = transformCamara.forward;
+        Vector3 horizontalDir = new Vector3(direccionDisparo.x, 0f, direccionDisparo.z);
+        if (horizontalDir.sqrMagnitude < 0.0001f)
+        {
+            horizontalDir = new Vector3(transform.forward.x, 0f, transform.forward.z);
+            if (horizontalDir.sqrMagnitude < 0.0001f) horizontalDir = Vector3.forward;
+        }
+        horizontalDir.Normalize();
 
-        GameObject bala = Instantiate(prefabBala, transform.position + direccionDisparo * 1.5f, Quaternion.LookRotation(direccionDisparo));
+        GameObject bala = Instantiate(prefabBala, transform.position + horizontalDir * 1.5f, Quaternion.LookRotation(horizontalDir));
 
         bala.transform.Rotate(Vector3.right, 90f, Space.World);
 
         Rigidbody rb = bala.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.AddForce(direccionDisparo * fuerzaBala, ForceMode.Impulse);
+            rb.linearVelocity = horizontalDir * fuerzaBala;
         }
 
         Destroy(bala, 3f);

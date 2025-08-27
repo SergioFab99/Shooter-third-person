@@ -672,7 +672,7 @@ GameObject:
   - component: {fileID: 337914723}
   - component: {fileID: 337914724}
   m_Layer: 0
-  m_Name: GenerateEnemys
+  m_Name: EnemySpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -709,7 +709,7 @@ MonoBehaviour:
   radioAparicion: 15
   intervaloGeneracion: 2
   distanciaMinima: 3
-  distanciaMinimaDelJugador: 8
+  distanciaMinimaDelJugador: 14
   intentosMaximos: 15
   maxEnemigosEnEscena: 50
 --- !u!1 &383863320
