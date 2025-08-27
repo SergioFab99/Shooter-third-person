@@ -4,6 +4,7 @@ public class EnemyFollow : MonoBehaviour
 {
     private Transform jugador;
     public float velocidadMovimiento = 5f;
+    EnemyLife vida;
 
     void Start()
     {
@@ -14,6 +15,8 @@ public class EnemyFollow : MonoBehaviour
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)
             rb.freezeRotation = true;
+
+        vida = GetComponent<EnemyLife>();
     }
 
     void Update()
@@ -29,13 +32,5 @@ public class EnemyFollow : MonoBehaviour
             jugador.position,
             velocidadMovimiento * Time.deltaTime
         );
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Bullet"))
-        {
-            Destroy(gameObject);
-        }
     }
 }

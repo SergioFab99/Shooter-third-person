@@ -19,10 +19,23 @@ public class EnemyLife : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag("Bullet")) return;
+        HandleBulletHit(other);
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        HandleBulletHit(collision.collider);
+    }
+
+    void HandleBulletHit(Collider other)
+    {
+        if (!other || !other.CompareTag("Bullet")) return;
         Destroy(other.gameObject);
         currentHits++;
-        if (!isFlashing) StartCoroutine(FlashDamage());
+        if (currentHits < maxHits)
+        {
+            if (!isFlashing) StartCoroutine(FlashDamage());
+        }
         if (currentHits >= maxHits) Die();
     }
 
@@ -31,10 +44,9 @@ public class EnemyLife : MonoBehaviour
         isFlashing = true;
         for (int i = 0; i < rends.Length; i++)
         {
-            Color c = originalColors[i];
             rends[i].material.color = new Color(1f, 0f, 0f, 0.5f);
         }
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         for (int i = 0; i < rends.Length; i++)
             rends[i].material.color = originalColors[i];
         isFlashing = false;
