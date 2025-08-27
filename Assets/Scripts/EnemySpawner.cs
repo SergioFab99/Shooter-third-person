@@ -9,6 +9,8 @@ public class EnemySpawner : MonoBehaviour
     public float distanciaMinimaDelJugador = 8f;
     public int intentosMaximos = 15;
     public int maxEnemigosEnEscena = 50;
+    [SerializeField] bool mostrarGizmo = true;
+    [SerializeField] Color colorGizmo = new Color(0f, 1f, 0f, 0.15f);
 
     private System.Collections.Generic.List<Vector3> posicionesEnemigosActivos = new System.Collections.Generic.List<Vector3>();
     private Transform jugador;
@@ -27,29 +29,33 @@ public class EnemySpawner : MonoBehaviour
     void GenerarEnemigo()
     {
         enemigosActuales = FindObjectsByType<EnemyFollow>(FindObjectsSortMode.None).Length;
-        if (jugador == null || enemigosActuales >= maxEnemigosEnEscena) return;
+        if (enemigosActuales >= maxEnemigosEnEscena) return;
 
         Vector3 posicionGenerar = Vector3.zero;
         bool posicionValidaEncontrada = false;
+        Vector3 centro = transform.position; // ahora el centro de spawn es el spawner
 
         for (int intentos = 0; intentos < intentosMaximos; intentos++)
         {
             Vector2 circuloAleatorio = Random.insideUnitCircle * radioAparicion;
             Vector3 posicionCandidato = new Vector3(
-                jugador.position.x + circuloAleatorio.x,
-                jugador.position.y + 10f,
-                jugador.position.z + circuloAleatorio.y
+                centro.x + circuloAleatorio.x,
+                centro.y + 10f,
+                centro.z + circuloAleatorio.y
             );
 
-            if (Physics.Raycast(posicionCandidato, Vector3.down, out RaycastHit hit, 20f))
+            if (Physics.Raycast(posicionCandidato, Vector3.down, out RaycastHit hit, 30f))
             {
                 if (hit.collider.CompareTag("Ground"))
                 {
                     posicionCandidato = hit.point + Vector3.up * 0.1f;
-                    
-                    float distanciaAlJugador = Vector3.Distance(posicionCandidato, jugador.position);
-                    if (distanciaAlJugador < distanciaMinimaDelJugador)
-                        continue;
+
+                    if (jugador != null)
+                    {
+                        float distanciaAlJugador = Vector3.Distance(posicionCandidato, jugador.position);
+                        if (distanciaAlJugador < distanciaMinimaDelJugador)
+                            continue;
+                    }
 
                     bool muyCerca = false;
                     foreach (Vector3 posicionEnemigo in posicionesEnemigosActivos)
@@ -71,10 +77,7 @@ public class EnemySpawner : MonoBehaviour
             }
         }
 
-        if (!posicionValidaEncontrada)
-        {
-            return;
-        }
+        if (!posicionValidaEncontrada) return;
 
         if (prefabEnemigo != null)
         {
@@ -117,5 +120,21 @@ public class EnemySpawner : MonoBehaviour
         }
         if (indexToRemove != -1 && bestDist <= 2f)
             posicionesEnemigosActivos.RemoveAt(indexToRemove);
+    }
+
+    void OnDrawGizmos()
+    {
+        if (!mostrarGizmo) return;
+        Vector3 pos = transform.position; // siempre el spawner
+        Color borde = new Color(colorGizmo.r, colorGizmo.g, colorGizmo.b, Mathf.Clamp01(colorGizmo.a + 0.3f));
+        Gizmos.color = colorGizmo;
+        Gizmos.DrawSphere(pos, radioAparicion * 0.02f);
+        Gizmos.color = borde;
+        Gizmos.DrawWireSphere(pos, radioAparicion);
+        if (jugador != null)
+        {
+            // Línea opcional hacia el jugador para referencia visual
+            Gizmos.DrawLine(pos, jugador.position);
+        }
     }
 }

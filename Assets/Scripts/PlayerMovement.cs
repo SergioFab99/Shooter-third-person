@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
@@ -32,6 +33,8 @@ public class PlayerMovement : MonoBehaviour
     public AudioClip sonidoDash;
     public AudioClip sonidoJump;
     private AudioSource fuenteAudio;
+
+    [SerializeField] bool permitirSalto = true; // nuevo flag
 
     void Start()
     {
@@ -104,7 +107,7 @@ public class PlayerMovement : MonoBehaviour
 
         rb.linearVelocity = new Vector3(movimiento.x, rb.linearVelocity.y, movimiento.z);
 
-        if (Input.GetButtonDown("Jump") && estaEnSuelo)
+        if (permitirSalto && Input.GetButtonDown("Jump") && estaEnSuelo)
         {
             fuenteAudio.PlayOneShot(sonidoJump);
             if (rb.linearVelocity.y < 0f)
@@ -137,9 +140,27 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.collider.CompareTag("Enemy"))
         {
-            GameManager.Instance.JugadorMurio();
+            if (GameManager.Instance != null)
+                GameManager.Instance.JugadorMurio();
+            CargarSiguienteEscena();
             Destroy(gameObject);
         }
+    }
+
+    void CargarSiguienteEscena()
+    {
+        int idx = SceneManager.GetActiveScene().buildIndex;
+        int total = SceneManager.sceneCountInBuildSettings;
+        if (total <= 1) return;
+        int siguiente = idx + 1;
+        if (siguiente >= total) siguiente = 0; // reinicia si es la última
+        SceneManager.LoadScene(siguiente);
+    }
+
+    public void Morir()
+    {
+        CargarSiguienteEscena();
+        Destroy(gameObject);
     }
 
     private void CrearEfectoTeleport(Vector3 posicion)
